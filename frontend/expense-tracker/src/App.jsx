@@ -6,6 +6,12 @@ import {
   Route,
   Navigate,
 }from "react-router-dom";
+import Login from './pages/Auth/Login';
+import SignUp from './pages/Auth/SingUp';
+import Home from './pages/Dashboard/Home';
+import Income from './pages/Dashboard/Income';
+import Expense from './pages/Dashboard/Expense';
+
 
 const App = () => {
   return (
@@ -25,3 +31,14 @@ const App = () => {
 }
 
 export default App
+
+const Root = () => {
+
+  const isAuthenticated= !!localStorage.getItem("token");
+
+  return isAuthenticated ? (
+  <Navigate to="/dashboard" /> 
+  ) : (
+   <Navigate to="/login" />
+  );
+};
