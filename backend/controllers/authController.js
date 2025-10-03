@@ -11,7 +11,7 @@ const generateToken = (id) => {
     
     console.log('✅ JWT_SECRET found, generating token...');
     return jwt.sign({ id }, process.env.JWT_SECRET, {
-        expiresIn: '1h',
+        expiresIn: '48h', // Extended to 48 hours for development
     });
 };
 
