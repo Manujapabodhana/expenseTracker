@@ -3,6 +3,13 @@ const jwt = require('jsonwebtoken');
 
 //generate JWT token
 const generateToken = (id) => {
+    // Debug: Check if JWT_SECRET exists
+    if (!process.env.JWT_SECRET) {
+        console.error('❌ JWT_SECRET is not defined in environment variables');
+        throw new Error('JWT_SECRET configuration is missing');
+    }
+    
+    console.log('✅ JWT_SECRET found, generating token...');
     return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: '1h',
     });
@@ -10,6 +17,7 @@ const generateToken = (id) => {
 
 //REGISTER USER
 exports.registerUser = async (req, res) => {
+    
     try {
         // Debug: Check if req.body exists
         console.log('Request body:', req.body);
@@ -28,6 +36,22 @@ exports.registerUser = async (req, res) => {
         //validation check for missing fields
         if (!fullName || !email || !password) {
             return res.status(400).json({ message: 'Please provide all required fields', status: 'fail' });
+        }
+
+        // Additional validation checks
+        if (fullName.trim().length < 2) {
+            return res.status(400).json({ message: 'Full name must be at least 2 characters long', status: 'fail' });
+        }
+
+        // Email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: 'Please provide a valid email address', status: 'fail' });
+        }
+
+        // Password strength validation
+        if (password.length < 6) {
+            return res.status(400).json({ message: 'Password must be at least 6 characters long', status: 'fail' });
         }
 
         //check if user already exists
