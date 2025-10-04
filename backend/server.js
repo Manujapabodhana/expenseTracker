@@ -4,7 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
-const incomeRoutes = require('./routes/incomeRoutes');
+const incomeRoutes = require('./routes/IncomeRoutes');
 
 const app = express();
 
