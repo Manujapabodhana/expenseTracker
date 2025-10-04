@@ -135,10 +135,16 @@ router.post("/upload", (req, res) => {
 // Test route to get a token quickly
 router.post("/test-token", async (req, res) => {
     const jwt = require('jsonwebtoken');
-    const testToken = jwt.sign({ id: "test-user-id" }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const mongoose = require('mongoose');
+    
+    // Generate a valid MongoDB ObjectId for testing
+    const testUserId = new mongoose.Types.ObjectId();
+    const testToken = jwt.sign({ id: testUserId.toString() }, process.env.JWT_SECRET, { expiresIn: '48h' });
+    
     res.json({ 
         message: "Test token generated", 
         token: testToken,
+        testUserId: testUserId.toString(),
         usage: "Use this token in Authorization header as: Bearer " + testToken
     });
 });
