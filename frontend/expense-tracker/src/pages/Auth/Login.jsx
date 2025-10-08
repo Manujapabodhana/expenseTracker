@@ -27,8 +27,30 @@ const Login = () => {
        setError("");
        //login api call
 
-       
+       try{
+        const response =await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
+            email,
+            password
+        });
+        const { token, user } = response.data;
+
+        if(token){
+            localStorage.setItem("accessToken", token);
+            navigate("/dashboard");
+        }
+       }
+         catch(error){
+            if(error.response && error.response.data.message){
+                setError(error.response.data.message);
+            }else{
+                setError("An error occurred. Please try again.");
+            }
+        }
     }
+
+
+       
+    
        
   return (
     <AuthLayout>
