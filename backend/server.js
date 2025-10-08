@@ -13,9 +13,10 @@ const app = express();
 //middlewares to handle cors
 app.use(
     cors({
-        origin: process.env.CLIENT_URL || "*",
-        methods: ["GET", "POST", "PUT", "DELETE"],
-        allowedHeaders: ["Content-Type", "Authorization"]
+        origin: [process.env.CLIENT_URL, "http://localhost:5173", "http://localhost:3000"],
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
+        credentials: true
     })
 );
 
@@ -44,7 +45,7 @@ app.get('/api/health', (req, res) => {
     res.json({ 
         status: 'healthy', 
         database: 'connected to MongoDB',
-        port: process.env.PORT || 5000
+        port: process.env.PORT || 8000
     });
 });
 
@@ -61,7 +62,7 @@ app.use("/api/v1/dashboard", dashboardRoutes);
 //server upload folder
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
     console.log(`🚀 Server is running on port ${PORT}`);
     console.log(`📡 Test your API at: http://localhost:${PORT}`);

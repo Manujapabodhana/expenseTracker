@@ -14,7 +14,54 @@ const SingUp = () => {
     // handle signup
     const handleSignUp = async (e) => {
         e.preventDefault();
-        console.log('Signup attempted with:', { fullName, email, password, profilePhoto });
+        
+        if (!fullName.trim()) {
+            setError("Full name is required");
+            return;
+        }
+        
+        if (!email.trim()) {
+            setError("Email is required");
+            return;
+        }
+        
+        if (!password.trim()) {
+            setError("Password is required");
+            return;
+        }
+        
+        setError("");
+        
+        try {
+            const response = await fetch('http://localhost:8000/api/v1/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    fullName: fullName.trim(),
+                    email: email.trim(),
+                    password: password,
+                    profileImageUrl: profilePhoto || ""
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.status === 'success') {
+                // Save token to localStorage
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.data));
+                
+                // Navigate to dashboard
+                navigate('/dashboard');
+            } else {
+                setError(data.message || 'Registration failed. Please try again.');
+            }
+        } catch (error) {
+            console.error('Signup error:', error);
+            setError('Network error. Please check your connection and try again.');
+        }
     }
 
   return (

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Connection Test</title>
+</head>
+<body>
+    <h1>Connection Test</h1>
+    <button onclick="testConnection()">Test Backend Connection</button>
+    <button onclick="testLogin()">Test Login</button>
+    <div id="result"></div>
+
+    <script>
+        async function testConnection() {
+            const result = document.getElementById('result');
+            try {
+                const response = await fetch('http://localhost:8000/api/health');
+                const data = await response.json();
+                result.innerHTML = '<p>✅ Backend connection successful: ' + JSON.stringify(data) + '</p>';
+            } catch (error) {
+                result.innerHTML = '<p>❌ Backend connection failed: ' + error.message + '</p>';
+            }
+        }
+
+        async function testLogin() {
+            const result = document.getElementById('result');
+            try {
+                const response = await fetch('http://localhost:8000/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'alex@manujapabodhana6.com',
+                        password: 'test123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    result.innerHTML = '<p>✅ Login successful: ' + JSON.stringify(data) + '</p>';
+                } else {
+                    result.innerHTML = '<p>❌ Login failed: ' + JSON.stringify(data) + '</p>';
+                }
+            } catch (error) {
+                result.innerHTML = '<p>❌ Login request failed: ' + error.message + '</p>';
+            }
+        }
+    </script>
+</body>
+</html>

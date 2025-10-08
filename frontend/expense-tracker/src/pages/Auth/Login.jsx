@@ -25,32 +25,45 @@ const Login = () => {
        }
 
        setError("");
-       //login api call
-
-       try{
-        const response =await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
-            email,
-            password
-        });
-        const { token, user } = response.data;
-
-        if(token){
-            localStorage.setItem("accessToken", token);
-            navigate("/dashboard");
-        }
-       }
-         catch(error){
-            if(error.response && error.response.data.message){
-                setError(error.response.data.message);
-            }else{
-                setError("An error occurred. Please try again.");
-            }
-        }
-    }
-
-
        
-    
+       try {
+           console.log('Attempting login with:', { email });
+           console.log('Backend URL:', 'http://localhost:8000/api/v1/auth/login');
+           
+           const response = await fetch('http://localhost:8000/api/v1/auth/login', {
+               method: 'POST',
+               headers: {
+                   'Content-Type': 'application/json',
+               },
+               body: JSON.stringify({
+                   email: email.trim(),
+                   password: password
+               })
+           });
+           
+           console.log('Response status:', response.status);
+           console.log('Response ok:', response.ok);
+           
+           const data = await response.json();
+           console.log('Response data:', data);
+           
+           if (response.ok && data.status === 'success') {
+               // Save token to localStorage
+               localStorage.setItem('token', data.token);
+               localStorage.setItem('user', JSON.stringify(data.data));
+               
+               console.log('Login successful, navigating to dashboard');
+               // Navigate to dashboard
+               navigate('/dashboard');
+           } else {
+               setError(data.message || 'Login failed. Please check your credentials.');
+           }
+       } catch (error) {
+           console.error('Login error:', error);
+           console.error('Error details:', error.message);
+           setError(`Network error: ${error.message}. Make sure the backend server is running on http://localhost:8000`);
+       }
+    }
        
   return (
     <AuthLayout>
