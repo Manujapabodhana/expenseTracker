@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerUser, loginUser, getUserInfo } = require('../controllers/authController');
+const { registerUser, loginUser, getUserInfo, deleteUser } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
 
@@ -9,6 +9,7 @@ const router = express.Router();
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.get("/getUser", protect, getUserInfo);
+router.post("/delete-user", deleteUser);
 
 // File upload route with better error handling
 router.post("/upload-image", (req, res) => {

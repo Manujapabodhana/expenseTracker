@@ -10,15 +10,30 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
 
-//middlewares to handle cors
+//middlewares to handle cors - PERMISSIVE FOR DEBUGGING
 app.use(
     cors({
-        origin: [process.env.CLIENT_URL, "http://localhost:5173", "http://localhost:3000"],
-        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        allowedHeaders: ["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
-        credentials: true
+        origin: true, // Allow all origins for debugging
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],
+        allowedHeaders: ["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With", "Access-Control-Allow-Origin"],
+        credentials: true,
+        optionsSuccessStatus: 200
     })
 );
+
+// Additional CORS headers for debugging
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+    
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+        res.sendStatus(200);
+    } else {
+        next();
+    }
+});
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));

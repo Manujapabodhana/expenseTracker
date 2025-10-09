@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Connection Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+        button { padding: 10px 20px; margin: 10px; }
+        #results { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+        input { margin: 5px; padding: 5px; }
+        .form-group { margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Backend Connection Test</h1>
+    <button onclick="testHealth()">Test Health Endpoint</button>
+    <button onclick="testCORS()">Test CORS</button>
+    
+    <div class="form-group">
+        <h3>Test Login with Your Credentials:</h3>
+        <input type="email" id="testEmail" placeholder="Email" value="alexfresh@test.com">
+        <input type="password" id="testPassword" placeholder="Password" value="test123">
+        <button onclick="testLoginWithInput()">Test Login</button>
+    </div>
+    
+    <div id="results"></div>
+
+    <script>
+        const resultsDiv = document.getElementById('results');
+
+        async function testHealth() {
+            try {
+                const response = await fetch('http://localhost:8000/api/health');
+                const data = await response.json();
+                showResult('Health Test', 'SUCCESS', data);
+            } catch (error) {
+                showResult('Health Test', 'ERROR', error.message);
+            }
+        }
+
+        async function testLoginWithInput() {
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+            
+            try {
+                console.log('Testing login with:', { email, password: '***' });
+                
+                const response = await fetch('http://localhost:8000/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email.trim(),
+                        password: password
+                    })
+                });
+                
+                console.log('Response:', response);
+                const data = await response.json();
+                console.log('Data:', data);
+                
+                showResult('Login Test', response.ok ? 'SUCCESS' : 'ERROR', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    data: data
+                });
+            } catch (error) {
+                console.error('Login test error:', error);
+                showResult('Login Test', 'ERROR', {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                });
+            }
+        }
+
+        async function testCORS() {
+            try {
+                const response = await fetch('http://localhost:8000/api/health', {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                const data = await response.json();
+                showResult('CORS Test', 'SUCCESS', data);
+            } catch (error) {
+                showResult('CORS Test', 'ERROR', error.message);
+            }
+        }
+
+        function showResult(test, status, data) {
+            const statusClass = status === 'SUCCESS' ? 'success' : 'error';
+            resultsDiv.innerHTML += `
+                <div>
+                    <h3>${test}: <span class="${statusClass}">${status}</span></h3>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

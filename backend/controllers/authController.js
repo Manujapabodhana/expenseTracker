@@ -127,6 +127,26 @@ exports.loginUser = async (req, res) => {
     }
 };
 
+//DELETE USER (temporary for fixing login issue)
+exports.deleteUser = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required', status: 'fail' });
+        }
+        
+        const result = await User.deleteOne({ email });
+        res.status(200).json({
+            message: 'User deleted successfully',
+            status: 'success',
+            deletedCount: result.deletedCount
+        });
+    } catch (err) {
+        console.error('Delete error:', err);
+        res.status(500).json({ message: 'Server error', error: err.message, status: 'error' });
+    }
+};
+
 //GET USER INFO
 exports.getUserInfo = async (req, res) => {
     try {

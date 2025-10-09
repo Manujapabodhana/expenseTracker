@@ -4,6 +4,35 @@ import AuthLayout from '../../components/Layouts/AuthLayout'
 import { validateEmail } from '../../utils/helper'
 import { UserContext } from '../../context/userContext'
 
+// Alternative login method using XMLHttpRequest (bypasses some CORS issues)
+const alternativeLogin = async (email, password) => {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.withCredentials = false; // Don't send credentials for CORS
+        
+        xhr.addEventListener('load', function() {
+            if (xhr.status === 200) {
+                try {
+                    const data = JSON.parse(xhr.responseText);
+                    resolve(data);
+                } catch (e) {
+                    reject(new Error('Invalid JSON response'));
+                }
+            } else {
+                reject(new Error(`HTTP ${xhr.status}: ${xhr.statusText}`));
+            }
+        });
+        
+        xhr.addEventListener('error', function() {
+            reject(new Error('Network error - cannot connect to server'));
+        });
+        
+        xhr.open('POST', 'http://localhost:8000/api/v1/auth/login');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify({ email: email.trim(), password }));
+    });
+};
+
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -15,7 +44,12 @@ const Login = () => {
     // handle login
     const handleLogin = async (e) => {
         e.preventDefault();
-        // Add your login logic here
+        console.log('🔍 LOGIN ATTEMPT STARTED');
+        console.log('📧 Email:', email);
+        console.log('🔑 Password length:', password.length);
+        console.log('🌐 Current URL:', window.location.href);
+        console.log('🔗 Target backend:', 'http://localhost:8000/api/v1/auth/login');
+        
        if(!validateEmail(email)){
         setError("Invalid email format");
         return;
@@ -29,11 +63,11 @@ const Login = () => {
        setError("");
        
        try {
-           console.log('Attempting login with:', { email });
-           console.log('Backend URL:', 'http://localhost:8000/api/v1/auth/login');
+           console.log('🚀 Trying fetch request first...');
            
            const response = await fetch('http://localhost:8000/api/v1/auth/login', {
                method: 'POST',
+               mode: 'cors',
                headers: {
                    'Content-Type': 'application/json',
                },
@@ -43,11 +77,7 @@ const Login = () => {
                })
            });
            
-           console.log('Response status:', response.status);
-           console.log('Response ok:', response.ok);
-           
            const data = await response.json();
-           console.log('Response data:', data);
            
            if (response.ok && data.status === 'success') {
                // Save token to localStorage
@@ -57,16 +87,35 @@ const Login = () => {
                // Update user context
                updateUser(data.data);
                
-               console.log('Login successful, navigating to dashboard');
-               // Navigate to dashboard
+               console.log('✅ Fetch login successful, navigating to dashboard');
                navigate('/dashboard');
            } else {
                setError(data.message || 'Login failed. Please check your credentials.');
            }
-       } catch (error) {
-           console.error('Login error:', error);
-           console.error('Error details:', error.message);
-           setError(`Network error: ${error.message}. Make sure the backend server is running on http://localhost:8000`);
+       } catch (fetchError) {
+           console.error('❌ Fetch failed, trying alternative method:', fetchError.message);
+           
+           try {
+               console.log('🔄 Trying alternative XMLHttpRequest method...');
+               const data = await alternativeLogin(email, password);
+               
+               if (data.status === 'success') {
+                   // Save token to localStorage
+                   localStorage.setItem('token', data.token);
+                   localStorage.setItem('user', JSON.stringify(data.data));
+                   
+                   // Update user context
+                   updateUser(data.data);
+                   
+                   console.log('✅ Alternative login successful, navigating to dashboard');
+                   navigate('/dashboard');
+               } else {
+                   setError(data.message || 'Login failed. Please check your credentials.');
+               }
+           } catch (altError) {
+               console.error('❌ Alternative login also failed:', altError.message);
+               setError(`❌ Cannot connect to server: ${altError.message}. Please check if backend is running.`);
+           }
        }
     }
        
