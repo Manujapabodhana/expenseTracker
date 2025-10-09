@@ -1,10 +1,38 @@
-import React from 'react'
+import React, { useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { UserContext } from '../../context/userContext'
 
 function Home() {
+  const { user, clearUser } = useContext(UserContext)
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    clearUser()
+    navigate('/login')
+  }
+
   return (
     <div style={{ minHeight: '100vh', padding: '20px', backgroundColor: '#f8f9fa' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '20px', color: '#333' }}>Dashboard</h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#333' }}>Dashboard</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            {user && <span style={{ color: '#666' }}>Welcome, {user.fullName || user.email}</span>}
+            <button 
+              onClick={handleLogout}
+              style={{ 
+                padding: '8px 16px', 
+                backgroundColor: '#dc3545', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: '4px', 
+                cursor: 'pointer' 
+              }}
+            >
+              Logout
+            </button>
+          </div>
+        </div>
         
         {/* Summary Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '30px' }}>

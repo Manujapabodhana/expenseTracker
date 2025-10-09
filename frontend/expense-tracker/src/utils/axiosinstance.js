@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { BASE_URL } from './apiPath';
-imprt {BASE_URL} from './apiPath';
 
 const axiosInstance = axios.create({
     baseURL: BASE_URL,
@@ -8,7 +7,6 @@ const axiosInstance = axios.create({
     headers: {
         "content-type": "application/json",
         Accept: "application/json",
-
     },
 });
 
@@ -18,23 +16,32 @@ axiosInstance.interceptors.request.use(
         const accessToken = localStorage.getItem("accessToken");
         if (accessToken) {
             config.headers["Authorization"] = `Bearer ${accessToken}`;
-            if (accessToken) {
-                config.headers["Authorization"] = `Bearer ${accessToken}`;
-            }
-            return config;
-        },
-        (error) => {
-            if(error.response){
-                if{error.response.status === 401}{
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
 
-                    //redict to login page
-
-                    window.location.href = "/login";
-                }else if(error.response.status === 500){
-                    console.error("Server error - try again later");
-                }else if(error.code === "ECONNABORTED"){
-                    console.error("A timeout has occurred");
-                }
-                return Promise.reject(error);
+//response interceptor
+axiosInstance.interceptors.response.use(
+    (response) => {
+        return response;
+    },
+    (error) => {
+        if (error.response) {
+            if (error.response.status === 401) {
+                // redirect to login page
+                window.location.href = "/login";
+            } else if (error.response.status === 500) {
+                console.error("Server error - try again later");
             }
-            export default axiosInstance;
+        } else if (error.code === "ECONNABORTED") {
+            console.error("A timeout has occurred");
+        }
+        return Promise.reject(error);
+    }
+);
+
+export default axiosInstance;

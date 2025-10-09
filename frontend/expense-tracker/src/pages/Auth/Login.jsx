@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AuthLayout from '../../components/Layouts/AuthLayout'
 import { validateEmail } from '../../utils/helper'
+import { UserContext } from '../../context/userContext'
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -9,6 +10,7 @@ const Login = () => {
     const [error, setError] = useState("");
 
     const navigate = useNavigate();
+    const { updateUser } = useContext(UserContext);
 
     // handle login
     const handleLogin = async (e) => {
@@ -51,6 +53,9 @@ const Login = () => {
                // Save token to localStorage
                localStorage.setItem('token', data.token);
                localStorage.setItem('user', JSON.stringify(data.data));
+               
+               // Update user context
+               updateUser(data.data);
                
                console.log('Login successful, navigating to dashboard');
                // Navigate to dashboard
