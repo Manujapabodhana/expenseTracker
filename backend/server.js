@@ -77,6 +77,9 @@ app.use("/api/v1/dashboard", dashboardRoutes);
 //server upload folder
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+//server public folder for test files
+app.use('/public', express.static(path.join(__dirname, 'public')));
+
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
     console.log(`🚀 Server is running on port ${PORT}`);

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile Photo Upload Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .container { max-width: 500px; }
+        .form-group { margin: 20px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="file"] { margin: 10px 0; }
+        button { background: #6B46C1; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #553C9A; }
+        .result { margin: 20px 0; padding: 15px; background: #f0f0f0; border-radius: 5px; }
+        .error { background: #fee; color: red; }
+        .success { background: #efe; color: green; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Profile Photo Upload Test</h1>
+        
+        <form id="uploadForm">
+            <div class="form-group">
+                <label for="fileInput">Select Image File (JPG, PNG only):</label>
+                <input type="file" id="fileInput" accept="image/jpeg,image/png,image/jpg" required />
+            </div>
+            <button type="submit">Test Upload</button>
+        </form>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showResult('Please select a file', 'error');
+                return;
+            }
+            
+            // Show file info
+            console.log('Selected file:', {
+                name: file.name,
+                size: file.size,
+                type: file.type
+            });
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                showResult('Uploading... Please wait', '');
+                
+                const response = await fetch('http://localhost:8000/api/v1/auth/upload-image', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                console.log('Response:', data);
+                
+                if (response.ok) {
+                    showResult(`
+                        <strong>✅ Upload Successful!</strong><br>
+                        Message: ${data.message}<br>
+                        File: ${data.filename}<br>
+                        Size: ${data.size} bytes<br>
+                        Image URL: <a href="${data.imageUrl}" target="_blank">${data.imageUrl}</a>
+                    `, 'success');
+                } else {
+                    showResult(`❌ Upload Failed: ${data.message}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Upload error:', error);
+                showResult(`❌ Network Error: ${error.message}`, 'error');
+            }
+        });
+        
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = message;
+            resultDiv.className = `result ${type}`;
+        }
+    </script>
+</body>
+</html>

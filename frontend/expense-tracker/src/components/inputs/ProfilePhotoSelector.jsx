@@ -7,13 +7,20 @@ const ProfilePhotoSelector = ({ image, setImage }) => {
 
     const handleImageChange = (event) => {
         const file = event.target.files[0];
+        console.log("File selected in ProfilePhotoSelector:", file);
         if (file) {
+            console.log("File details:", {
+                name: file.name,
+                size: file.size,
+                type: file.type
+            });
             // update the image state
             setImage(file);
 
             // generate a preview url from the file 
             const previewUrl = URL.createObjectURL(file);
             setPreview(previewUrl);
+            console.log("Preview URL created:", previewUrl);
         }
     };
 
