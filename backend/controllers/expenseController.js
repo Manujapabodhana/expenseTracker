@@ -10,7 +10,7 @@ exports.addExpense = async (req, res) => {
     const userId = req.user.id;
 
     try{
-        const { icon, category, amount, date } = req.body;
+        const { category, amount, date, description } = req.body;
 
         //validation check for missing fields
         if(!category || !amount || !date){
@@ -19,9 +19,9 @@ exports.addExpense = async (req, res) => {
 
         const newExpense = new Expense({
             userId,
-            icon,
             category,
             amount,
+            description,
             date: new Date(date)
         });
 
@@ -41,7 +41,7 @@ exports.getAllExpense = async (req, res) => {
 
     try {
         const expense = await Expense.find({ userId }).sort({ date: -1 });
-        res.json({ expense });
+        res.json({ status: 'success', data: expense });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error', status: 'fail' });
