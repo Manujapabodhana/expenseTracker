@@ -65,7 +65,10 @@ app.get('/api/health', (req, res) => {
 });
 
 // Connect to MongoDB - Required!
-connectDB();
+connectDB().catch((error) => {
+    console.error('❌ Database connection failed:', error.message);
+    console.log('⚠️ Server will continue without database (limited functionality)');
+});
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/income", incomeRoutes);
@@ -81,9 +84,51 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
 const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Server is running on port ${PORT}`);
     console.log(`📡 Test your API at: http://localhost:${PORT}`);
     console.log(`🏥 Health check at: http://localhost:${PORT}/api/health`);
     console.log(`⚡ Ready to process requests!`);
+});
+
+// Handle server errors
+server.on('error', (err) => {
+    console.error('❌ Server error:', err.message);
+    if (err.code === 'EADDRINUSE') {
+        console.error(`🚫 Port ${PORT} is already in use. Try a different port.`);
+    }
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+    console.error('❌ Uncaught Exception:', err.message);
+    console.error('Stack:', err.stack);
+    // Don't exit the process for uncaught exceptions in development
+    if (process.env.NODE_ENV === 'production') {
+        process.exit(1);
+    }
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+    // Don't exit the process for unhandled rejections in development
+    if (process.env.NODE_ENV === 'production') {
+        process.exit(1);
+    }
+});
+
+// Keep the process alive
+process.on('SIGTERM', () => {
+    console.log('👋 SIGTERM received. Shutting down gracefully...');
+    server.close(() => {
+        console.log('💤 Process terminated');
+    });
+});
+
+process.on('SIGINT', () => {
+    console.log('👋 SIGINT received. Shutting down gracefully...');
+    server.close(() => {
+        console.log('💤 Process terminated');
+    });
 });

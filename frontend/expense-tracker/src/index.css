@@ -18,4 +18,18 @@
     background-color: #fcfbfc;
     overflow-x:hidden;
   }
+}
+
+@layer utilities {
+  .bg-primary {
+    background-color: var(--color-primary);
   }
+  
+  .text-primary {
+    color: var(--color-primary);
+  }
+  
+  .border-primary {
+    border-color: var(--color-primary);
+  }
+}

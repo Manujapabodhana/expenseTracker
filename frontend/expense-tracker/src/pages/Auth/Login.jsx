@@ -3,35 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import AuthLayout from '../../components/Layouts/AuthLayout'
 import { validateEmail } from '../../utils/helper'
 import { UserContext } from '../../context/userContext'
-
-// Alternative login method using XMLHttpRequest (bypasses some CORS issues)
-const alternativeLogin = async (email, password) => {
-    return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.withCredentials = false; // Don't send credentials for CORS
-        
-        xhr.addEventListener('load', function() {
-            if (xhr.status === 200) {
-                try {
-                    const data = JSON.parse(xhr.responseText);
-                    resolve(data);
-                } catch (e) {
-                    reject(new Error('Invalid JSON response'));
-                }
-            } else {
-                reject(new Error(`HTTP ${xhr.status}: ${xhr.statusText}`));
-            }
-        });
-        
-        xhr.addEventListener('error', function() {
-            reject(new Error('Network error - cannot connect to server'));
-        });
-        
-        xhr.open('POST', 'http://localhost:8000/api/v1/auth/login');
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.send(JSON.stringify({ email: email.trim(), password }));
-    });
-};
+import axiosInstance from '../../utils/axiosinstance'
+import { API_PATHS } from '../../utils/apiPath'
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -47,8 +20,6 @@ const Login = () => {
         console.log('🔍 LOGIN ATTEMPT STARTED');
         console.log('📧 Email:', email);
         console.log('🔑 Password length:', password.length);
-        console.log('🌐 Current URL:', window.location.href);
-        console.log('🔗 Target backend:', 'http://localhost:8000/api/v1/auth/login');
         
        if(!validateEmail(email)){
         setError("Invalid email format");
@@ -63,23 +34,16 @@ const Login = () => {
        setError("");
        
        try {
-           console.log('🚀 Trying fetch request first...');
+           console.log('🚀 Attempting login via axios...');
            
-           const response = await fetch('http://localhost:8000/api/v1/auth/login', {
-               method: 'POST',
-               mode: 'cors',
-               headers: {
-                   'Content-Type': 'application/json',
-               },
-               body: JSON.stringify({
-                   email: email.trim(),
-                   password: password
-               })
+           const response = await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
+               email: email.trim(),
+               password: password
            });
            
-           const data = await response.json();
+           const data = response.data;
            
-           if (response.ok && data.status === 'success') {
+           if (data.status === 'success') {
                // Save token to localStorage
                localStorage.setItem('token', data.token);
                localStorage.setItem('user', JSON.stringify(data.data));
@@ -87,34 +51,24 @@ const Login = () => {
                // Update user context
                updateUser(data.data);
                
-               console.log('✅ Fetch login successful, navigating to dashboard');
+               console.log('✅ Login successful, navigating to dashboard');
                navigate('/dashboard');
            } else {
                setError(data.message || 'Login failed. Please check your credentials.');
            }
-       } catch (fetchError) {
-           console.error('❌ Fetch failed, trying alternative method:', fetchError.message);
+       } catch (error) {
+           console.error('❌ Login failed:', error);
            
-           try {
-               console.log('🔄 Trying alternative XMLHttpRequest method...');
-               const data = await alternativeLogin(email, password);
-               
-               if (data.status === 'success') {
-                   // Save token to localStorage
-                   localStorage.setItem('token', data.token);
-                   localStorage.setItem('user', JSON.stringify(data.data));
-                   
-                   // Update user context
-                   updateUser(data.data);
-                   
-                   console.log('✅ Alternative login successful, navigating to dashboard');
-                   navigate('/dashboard');
-               } else {
-                   setError(data.message || 'Login failed. Please check your credentials.');
-               }
-           } catch (altError) {
-               console.error('❌ Alternative login also failed:', altError.message);
-               setError(`❌ Cannot connect to server: ${altError.message}. Please check if backend is running.`);
+           if (error.response) {
+               // Server responded with error status
+               const errorMessage = error.response.data?.message || 'Login failed. Please check your credentials.';
+               setError(errorMessage);
+           } else if (error.request) {
+               // Request was made but no response received
+               setError('❌ Cannot connect to server. Please check if backend is running.');
+           } else {
+               // Something else happened
+               setError('❌ An unexpected error occurred. Please try again.');
            }
        }
     }
