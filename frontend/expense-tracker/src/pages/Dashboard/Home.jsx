@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/Layouts/DashboardLayout';
 import { useUserAuth } from '../../hooks/useUserAuth';
 import { API_PATHS } from '../../utils/apiPath';
@@ -7,11 +8,14 @@ import { LuHandCoins, LuWalletMinimal } from "react-icons/lu";
 import { IoMdCard } from "react-icons/io";
 import { addThousandsSeparator } from '../../utils/helper';
 import DashboardCard from '../../components/cards/DashboardCard';
+import RecentTransactions from '../../components/Dashboard/RecentTransaction';
+import FinanceOverview from '../../components/Dashboard/FinanceOverview';
 
 
 const Home = () => {
 
   useUserAuth();
+  const navigate = useNavigate();
 
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -64,6 +68,18 @@ const Home = () => {
             label="Total Expenses"
             value={addThousandsSeparator(dashboardData?.totalExpenses || 0)}
             color="bg-red-500"
+          />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <RecentTransactions
+            transactions={dashboardData?.recentTransactions}
+            onSeeMore={() => navigate("/expense")}
+          />
+
+          <FinanceOverview
+            totalBalance={dashboardData?.totalBalance || 0}
+            totalIncome={dashboardData?.totalIncome || 0}
+            totalExpense={dashboardData?.totalExpenses || 0}
           />
         </div>
       </div>
