@@ -76,7 +76,10 @@ exports.getDashboardData = async (req, res) => {
             totalBalance: (totalIncome[0]?.total || 0) - (totalExpenses[0]?.total || 0),
             totalIncome: totalIncome[0]?.total || 0,
             totalExpenses: totalExpenses[0]?.total || 0,
-            last30DaysExpenses: expenseLast30Days,
+            last30DaysExpenses: {
+                total: expenseLast30Days,
+                transactions: last30DaysExpenseTransactions,
+            },
             last60DaysIncome: {
                 total: incomeLast60Days,
                 transactions: last60DaysIncomeTransactions,
