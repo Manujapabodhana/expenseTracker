@@ -18,9 +18,19 @@ const SideMenu = ({ activeMenu }) => {
   };
 
   const handleLogout = () => {
-    localStorage.clear(); 
+    console.log('🚪 Logging out...');
+    
+    // Clear user-specific data
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    
+    // Clear user context
     clearUser();
-    navigate("/login");
+    
+    console.log('✅ Logout complete, redirecting to login');
+    
+    // Navigate to login
+    navigate("/login", { replace: true });
   };
 
   // Simple avatar component for displaying user initials

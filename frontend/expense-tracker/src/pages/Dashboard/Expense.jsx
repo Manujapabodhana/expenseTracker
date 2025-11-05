@@ -81,6 +81,7 @@ const Expense = () => {
         "Error adding expense:",
         error.response?.data?.message || error.message
       );
+      toast.error("Failed to add expense. Please try again.");
     }
   };
 
@@ -97,6 +98,7 @@ const Expense = () => {
         "Error deleting expense:",
         error.response?.data?.message || error.message
       );
+      toast.error("Failed to delete expense. Please try again.");
     }
   };
 

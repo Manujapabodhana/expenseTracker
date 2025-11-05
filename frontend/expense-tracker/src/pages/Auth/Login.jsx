@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AuthLayout from '../../components/Layouts/AuthLayout'
 import { validateEmail } from '../../utils/helper'
@@ -13,6 +13,13 @@ const Login = () => {
 
     const navigate = useNavigate();
     const { updateUser } = useContext(UserContext);
+
+    // Reset form when component mounts
+    useEffect(() => {
+        setEmail("");
+        setPassword("");
+        setError("");
+    }, []);
 
     // handle login
     const handleLogin = async (e) => {
@@ -42,18 +49,30 @@ const Login = () => {
            });
            
            const data = response.data;
+           console.log('📦 Login response:', data);
            
-           if (data.status === 'success') {
-               // Save token to localStorage
+           if (data.status === 'success' && data.token) {
+               console.log('✅ Login successful!');
+               
+               // Clear any old data
+               localStorage.removeItem('user');
+               localStorage.removeItem('token');
+               
+               // Save new token and user data
                localStorage.setItem('token', data.token);
                localStorage.setItem('user', JSON.stringify(data.data));
                
                // Update user context
                updateUser(data.data);
                
-               console.log('✅ Login successful, navigating to dashboard');
-               navigate('/dashboard');
+               console.log('✅ Token saved, user updated, navigating to dashboard');
+               
+               // Small delay to ensure state is updated
+               setTimeout(() => {
+                   navigate('/dashboard', { replace: true });
+               }, 100);
            } else {
+               console.error('❌ Login failed - invalid response:', data);
                setError(data.message || 'Login failed. Please check your credentials.');
            }
        } catch (error) {
