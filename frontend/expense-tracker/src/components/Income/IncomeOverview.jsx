@@ -3,15 +3,18 @@ import React, { useEffect, useState } from "react";
 import { LuPlus } from "react-icons/lu";
 import CustomLineChart from "../Charts/CustomLineChart";
 import CustomBarChart from "../Charts/CustomBarChart";
-import { prepareIncomeBarChartData } from "../../utils/helper";
+import { prepareIncomeBarChartData, prepareIncomeLineChartData } from "../../utils/helper";
 
 const IncomeOverview = ({ transactions, onAddIncome }) => {
 
-  const [chartData, setChartData] = useState([])
+  const [barChartData, setBarChartData] = useState([])
+  const [lineChartData, setLineChartData] = useState([])
 
   useEffect(() => {
-     const result = prepareIncomeBarChartData(transactions);
-     setChartData(result);
+     const barData = prepareIncomeBarChartData(transactions);
+     const lineData = prepareIncomeLineChartData(transactions);
+     setBarChartData(barData);
+     setLineChartData(lineData);
   
       return () => {};
     }, [transactions]);
@@ -33,8 +36,16 @@ const IncomeOverview = ({ transactions, onAddIncome }) => {
       </div>
 
       <div className="mt-10">
-        <CustomBarChart data={chartData} />
+        <h6 className="text-sm font-medium text-gray-700 mb-4">Income by Source</h6>
+        <CustomBarChart data={barChartData} />
       </div>
+
+      {lineChartData.length > 0 && (
+        <div className="mt-10">
+          <h6 className="text-sm font-medium text-gray-700 mb-4">Income Trend</h6>
+          <CustomLineChart data={lineChartData} />
+        </div>
+      )}
     </div>
   );
 };

@@ -49,8 +49,8 @@ const Income = () => {
     const { source, amount, date, icon } = income;
 
     // Validation Checks
-    if (!source.trim()) {
-      toast.error("Source is required.");
+    if (!source || !source.trim()) {
+      toast.error("Income source is required.");
       return;
     }
 
@@ -65,20 +65,22 @@ const Income = () => {
     }
 
     try {
-      await axiosInstance.post(API_PATHS.INCOME.ADD_INCOME, {
-        source,
-        amount,
+      const response = await axiosInstance.post(API_PATHS.INCOME.ADD_INCOME, {
+        source: source.trim(),
+        amount: Number(amount),
         date,
-        icon,
+        icon: icon || "",
       });
 
-      setOpenAddIncomeModal(false);
-      toast.success("Income added successfully");
-      fetchIncomeDetails();
+      if (response.data.status === 'success') {
+        setOpenAddIncomeModal(false);
+        toast.success("Income added successfully!");
+        fetchIncomeDetails();
+      }
     } catch (error) {
-      console.error(
-        "Error adding income:",
-        error.response?.data?.message || error.message
+      console.error("Error adding income:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to add income. Please try again."
       );
     }
   };

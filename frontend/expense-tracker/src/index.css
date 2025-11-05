@@ -28,7 +28,7 @@ body {
   border-color: var(--color-primary);
 }
 
-.card {
+/*.card {
   background-color: white;
   padding: 1.5rem;
   border-radius: 1rem;
@@ -54,3 +54,45 @@ body {
   color: rgb(168, 85, 247);
   background-color: rgb(250, 245, 255);
 }
+  */
+
+@layer base {
+  html {
+    font-family: var(--font-display);
+  }
+
+  body {
+    background-color: #fcfbfc;
+    overflow-x: hidden;
+  }
+}
+
+.recharts-bar-rectangle:hover {
+  fill: rgba(255, 255, 0, 0.2) !important; 
+}
+
+.input-box {
+  @apply w-full flex justify-between gap-3 text-sm text-black bg-slate-100 rounded px-4 py-3 mb-4 mt-3 border border-slate-200 outline-none;
+}
+
+.btn-primary {
+  @apply w-full text-sm font-medium text-white bg-violet-500 shadow-lg shadow-purple-600/5 p-[10px] rounded-md my-1 hover:bg-purple-600/15 hover:text-purple-600;
+}
+
+.card {
+  @apply bg-white p-6 rounded-2xl shadow-md shadow-gray-100 border border-gray-200/50;
+}
+
+.card-btn {
+  @apply flex items-center gap-3 text-[12px] font-medium text-gray-700 hover:text-purple-500 bg-gray-50 hover:bg-purple-50 px-4 py-1.5 rounded-lg border border-gray-200/50 cursor-pointer;
+}
+
+.add-btn {
+  @apply flex items-center gap-1.5 text-xs md:text-sm font-medium text-purple-600 whitespace-nowrap bg-purple-50 border border-purple-100 rounded-lg px-4 py-2 cursor-pointer;
+}
+
+.add-btn-fill {
+  @apply text-white bg-primary
+}
+
+

@@ -12,6 +12,17 @@ const AddIncomeForm = ({onAddIncome}) => {
 
   const handleChange = (key, value) => setIncome({ ...income, [key]: value });
 
+  const handleSubmit = () => {
+    onAddIncome(income);
+    // Reset form after submission
+    setIncome({
+      source: "",
+      amount: "",
+      date: "",
+      icon: "",
+    });
+  };
+
   return (
     <div>
       <EmojiPickerPopup
@@ -25,29 +36,34 @@ const AddIncomeForm = ({onAddIncome}) => {
         label="Income Source"
         placeholder="Freelance, Salary, etc"
         type="text"
+        required
       />
 
       <Input
         value={income.amount}
         onChange={({ target }) => handleChange("amount", target.value)}
         label="Amount"
-        placeholder=""
+        placeholder="Enter amount"
         type="number"
+        min="0"
+        step="0.01"
+        required
       />
 
       <Input
         value={income.date}
         onChange={({ target }) => handleChange("date", target.value)}
         label="Date"
-        placeholder=""
+        placeholder="Select date"
         type="date"
+        required
       />
 
       <div className="flex justify-end mt-6">
         <button
           type="button"
           className="add-btn add-btn-fill"
-          onClick={()=>onAddIncome(income)}
+          onClick={handleSubmit}
         >
           Add Income
         </button>
