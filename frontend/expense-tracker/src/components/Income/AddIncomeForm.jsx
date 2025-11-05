@@ -24,7 +24,7 @@ const AddIncomeForm = ({onAddIncome}) => {
   };
 
   return (
-    <div>
+    <div className="bg-purple-50 p-4 rounded-lg">
       <EmojiPickerPopup
         icon={income.icon}
         onSelect={(selectedIcon) => handleChange("icon", selectedIcon)}
