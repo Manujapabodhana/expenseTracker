@@ -30,10 +30,29 @@ export const addThousandsSeparator = (num) => {
 };
 
 export const prepareExpenseBarChartData = (data = []) => {
-  const chartData = data.map((item) => ({
-    category: item?.category,
-    amount: item?.amount,
-  }));
+  // Group expenses by date and sum amounts for the same date
+  const groupedByDate = {};
+  
+  data.forEach((item) => {
+    const dateKey = moment(item?.date).format('Do MMM');
+    if (groupedByDate[dateKey]) {
+      groupedByDate[dateKey] += Number(item?.amount || 0);
+    } else {
+      groupedByDate[dateKey] = Number(item?.amount || 0);
+    }
+  });
+
+  // Convert to array and sort by date
+  const chartData = Object.entries(groupedByDate)
+    .map(([date, amount]) => ({
+      category: date,
+      amount: amount,
+    }))
+    .sort((a, b) => {
+      const dateA = moment(a.category, 'Do MMM');
+      const dateB = moment(b.category, 'Do MMM');
+      return dateA - dateB;
+    });
 
   return chartData;
 };
@@ -62,6 +81,28 @@ export const prepareIncomeBarChartData = (data = []) => {
       const dateB = moment(b.category, 'Do MMM');
       return dateA - dateB;
     });
+
+  return chartData;
+};
+
+export const prepareExpenseByCategoryData = (data = []) => {
+  // Group expenses by category and sum amounts
+  const groupedByCategory = {};
+  
+  data.forEach((item) => {
+    const category = item?.category || 'Unknown';
+    if (groupedByCategory[category]) {
+      groupedByCategory[category] += Number(item?.amount || 0);
+    } else {
+      groupedByCategory[category] = Number(item?.amount || 0);
+    }
+  });
+
+  // Convert to array
+  const chartData = Object.entries(groupedByCategory).map(([category, amount]) => ({
+    category: category,
+    amount: amount,
+  }));
 
   return chartData;
 };
